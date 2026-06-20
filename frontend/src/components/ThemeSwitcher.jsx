@@ -16,15 +16,18 @@ const ThemeSwitcher = () => {
         onClick={() => setIsOpen(!isOpen)}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="flex items-center gap-2 p-2.5 px-4 rounded-full bg-slate-950/45 border border-white/5 text-slate-300 hover:text-white transition-all backdrop-blur-md cursor-pointer select-none text-xs font-space font-medium tracking-wide shadow-lg"
+        className="flex items-center gap-2 p-2.5 px-4 rounded-full border backdrop-blur-md cursor-pointer select-none text-xs font-space font-medium tracking-wide shadow-lg transition-all"
         style={{
+          backgroundColor: 'var(--theme-card, rgba(18,12,35,0.45))',
           borderColor: `${activeTheme.accent}30`,
+          color: 'var(--theme-text-muted, #94a3b8)',
           boxShadow: `0 0 10px ${activeTheme.accent}15`,
         }}
       >
         <Palette size={14} style={{ color: activeTheme.accent }} />
         <span>{activeTheme.name.split(' ')[0] || 'Theme'}</span>
       </motion.button>
+
 
       {/* Grid of themes */}
       <AnimatePresence>
@@ -38,8 +41,14 @@ const ThemeSwitcher = () => {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 15, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="absolute right-0 mt-3 z-20 w-48 p-2 rounded-2xl bg-[#0e0a1b]/90 border border-white/10 backdrop-blur-xl shadow-2xl flex flex-col gap-1"
+              className="absolute right-0 mt-3 z-20 w-48 p-2 rounded-2xl backdrop-blur-xl shadow-2xl flex flex-col gap-1 border"
+              style={{
+                backgroundColor: 'var(--theme-card, rgba(14,10,27,0.9))',
+                borderColor: 'var(--theme-border, rgba(255,255,255,0.1))',
+                boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+              }}
             >
+
               <div className="px-3 py-1.5 text-[9px] font-space text-slate-500 uppercase tracking-widest border-b border-white/5 mb-1">
                 Select Theme
               </div>

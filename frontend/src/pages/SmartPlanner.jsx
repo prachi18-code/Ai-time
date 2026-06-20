@@ -4,7 +4,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { api } from '../services/api';
 import GlassCard from '../components/GlassCard';
-import { CalendarDays, Plus, Trash2, CheckCircle2, Circle, Sparkles, RefreshCw } from 'lucide-react';
+import { CalendarDays, Plus, Trash2, CheckCircle2, Circle, Sparkles, RefreshCw, LayoutList, LayoutGrid, Zap, Clock, Target } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const SmartPlanner = () => {
@@ -15,6 +15,8 @@ const SmartPlanner = () => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [viewMode, setViewMode] = useState('list'); // 'list' | 'board'
+  const [filterStatus, setFilterStatus] = useState('all'); // 'all' | 'pending' | 'completed'
 
   // Form states
   const [title, setTitle] = useState('');
@@ -26,6 +28,7 @@ const SmartPlanner = () => {
   
   const [isGenerating, setIsGenerating] = useState(false);
   const [coachingTip, setCoachingTip] = useState('');
+  const [scheduleSuccess, setScheduleSuccess] = useState(false);
 
   const loadTasks = async () => {
     if (!token) return;
@@ -98,16 +101,18 @@ const SmartPlanner = () => {
   };
 
   const handleGenerateAISchedule = async () => {
-    if (tasks.length === 0) {
-      alert('Schedules tabhi bange jab list me pending tasks honge!');
+    if (tasks.filter(t => t.status !== 'completed').length === 0) {
+      alert('Add some pending tasks first!');
       return;
     }
     setIsGenerating(true);
     setCoachingTip('');
+    setScheduleSuccess(false);
     try {
       const res = await api.generateSchedule(token);
       setCoachingTip(res.coachingTip);
-      alert('AI schedule created successfully! Go to Dashboard to check "Aaj ka Plan".');
+      setScheduleSuccess(true);
+      setTimeout(() => setScheduleSuccess(false), 4000);
     } catch (err) {
       console.error(err);
       alert(err.message || 'AI Scheduler failed.');
@@ -119,36 +124,65 @@ const SmartPlanner = () => {
   const activeTheme = themes.find(t => t.id === theme) || themes[0];
   const accentColor = activeTheme.accent;
 
+  const pending = tasks.filter(t => t.status !== 'completed');
+  const completed = tasks.filter(t => t.status === 'completed');
+  const filteredTasks = filterStatus === 'pending' ? pending : filterStatus === 'completed' ? completed : tasks;
+
+  const priorityConfig = {
+    high:   { color: '#f43f5e', bg: 'bg-red-500/10',    border: 'border-red-500/20',    label: '🔴 High' },
+    medium: { color: '#f59e0b', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20', label: '🟡 Medium' },
+    low:    { color: '#22d3ee', bg: 'bg-cyan-500/10',   border: 'border-cyan-500/20',   label: '🔵 Low' },
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 20 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
-      className="pb-32 pt-6 px-4 max-w-lg mx-auto font-sans text-slate-200"
+      className="pb-32 pt-4 px-2 max-w-2xl mx-auto font-sans"
     >
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
+      {/* ── Header ── */}
+      <div className="flex justify-between items-start mb-5 px-1">
         <div>
-          <h1 
-            className="font-sora text-2xl font-extrabold text-transparent bg-clip-text"
-            style={{ backgroundImage: `linear-gradient(to right, ${accentColor}, #f472b6)` }}
-          >
-            Smart Planner
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[9px] font-space tracking-widest uppercase px-2.5 py-0.5 rounded-full border bg-white/5"
+              style={{ borderColor: `${accentColor}30`, color: accentColor }}>
+              📋 Smart Planner
+            </span>
+          </div>
+          <h1 className="font-sora text-3xl font-extrabold text-transparent bg-clip-text"
+            style={{ backgroundImage: `linear-gradient(135deg, ${accentColor}, #f472b6)` }}>
+            Quest Board
           </h1>
-          <p className="text-xs text-slate-400 font-space mt-0.5">
+          <p className="text-[10px] text-slate-400 font-space mt-1 uppercase tracking-wider">
             {t('planner_desc')}
           </p>
         </div>
         <motion.button
           onClick={() => setShowAddForm(!showAddForm)}
-          whileHover={{ scale: 1.1, rotate: 90 }}
-          whileTap={{ scale: 0.9 }}
-          className="p-3 rounded-full text-white cursor-pointer shadow-lg hover:glow-theme transition-all"
-          style={{ backgroundColor: accentColor, boxShadow: `0 4px 15px ${accentColor}40` }}
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.92 }}
+          className="flex items-center gap-2 py-2.5 px-4 rounded-2xl text-white text-xs font-sora font-bold cursor-pointer shadow-lg transition-all btn-theme-gradient"
+          style={{ boxShadow: `0 4px 20px ${accentColor}35` }}
         >
-          <Plus size={20} />
+          <Plus size={16} /> Add Quest
         </motion.button>
+      </div>
+
+      {/* ── Stats Row ── */}
+      <div className="grid grid-cols-3 gap-3 mb-5">
+        {[
+          { icon: '📋', label: 'Total', value: tasks.length, color: accentColor },
+          { icon: '⏳', label: 'Pending', value: pending.length, color: '#f59e0b' },
+          { icon: '✅', label: 'Done', value: completed.length, color: '#22d3ee' },
+        ].map((stat, i) => (
+          <GlassCard key={i} className="p-3 text-center hover:scale-[1.02] transition-transform">
+            <span className="text-lg">{stat.icon}</span>
+            <p className="font-sora font-black text-lg mt-1" style={{ color: stat.color }}>{stat.value}</p>
+            <p className="text-[8px] font-space text-slate-500 uppercase">{stat.label}</p>
+          </GlassCard>
+        ))}
       </div>
 
       {/* AI Schedule Prompt Coaching Area */}
@@ -291,104 +325,143 @@ const SmartPlanner = () => {
         )}
       </AnimatePresence>
 
-      {/* Generate AI Schedule button CTA */}
+      {/* ── AI Schedule CTA ── */}
+      <AnimatePresence>
+        {scheduleSuccess && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="mb-4 p-3 rounded-2xl border text-xs font-sans flex items-center gap-2"
+            style={{ borderColor: `${accentColor}30`, color: accentColor, backgroundColor: `${accentColor}10` }}
+          >
+            <Sparkles size={14} /> Schedule created! Check Dashboard → Today's Plan ✨
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <motion.button
         onClick={handleGenerateAISchedule}
-        disabled={isGenerating || tasks.length === 0}
+        disabled={isGenerating || pending.length === 0}
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
-        className="w-full mb-6 py-3.5 rounded-2xl text-white font-sora font-bold text-sm hover:opacity-95 transition-all glow-theme disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center gap-2 cursor-pointer btn-theme-gradient"
+        className="w-full mb-5 py-3.5 rounded-2xl text-white font-sora font-bold text-sm transition-all disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center gap-2 cursor-pointer btn-theme-gradient"
+        style={{ boxShadow: `0 6px 25px ${accentColor}30` }}
       >
         {isGenerating ? (
-          <>
-            <RefreshCw className="animate-spin" size={16} />
-            {t('planning_day')}
-          </>
+          <><RefreshCw className="animate-spin" size={16} /> Generating your day...</>
         ) : (
-          <>
-            <Sparkles size={16} />
-            {t('generate_ai_schedule')}
-          </>
+          <><Sparkles size={16} /> Generate AI Schedule ⚡</>
         )}
       </motion.button>
 
-      {/* Task List */}
-      <h2 className="font-sora text-sm font-bold text-slate-300 mb-3 px-1 uppercase tracking-wider">
-        {t('your_tasks')} ({tasks.length})
-      </h2>
+      {/* ── Filter + View Controls ── */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex gap-1 bg-black/20 p-1 rounded-2xl">
+          {['all', 'pending', 'completed'].map(f => (
+            <button key={f} onClick={() => setFilterStatus(f)}
+              className={`px-3 py-1 rounded-xl text-[9px] font-space font-bold uppercase cursor-pointer transition-all ${
+                filterStatus === f ? 'text-slate-950' : 'text-slate-400 hover:text-white'
+              }`}
+              style={filterStatus === f ? { backgroundColor: accentColor } : {}}>
+              {f === 'all' ? `All (${tasks.length})` : f === 'pending' ? `Active (${pending.length})` : `Done (${completed.length})`}
+            </button>
+          ))}
+        </div>
+        <div className="flex gap-1">
+          {[{ id: 'list', Icon: LayoutList }, { id: 'board', Icon: LayoutGrid }].map(({ id, Icon }) => (
+            <button key={id} onClick={() => setViewMode(id)}
+              className={`p-2 rounded-xl cursor-pointer transition-all ${
+                viewMode === id ? 'text-white' : 'text-slate-500 hover:text-slate-300'
+              }`}
+              style={viewMode === id ? { backgroundColor: `${accentColor}20` } : {}}>
+              <Icon size={15} />
+            </button>
+          ))}
+        </div>
+      </div>
 
       {loading ? (
-        <div className="py-16 flex flex-col items-center">
-          <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: `${accentColor}10`, borderTopColor: accentColor }} />
+        <div className="py-20 flex flex-col items-center gap-3">
+          <motion.div animate={{ rotate: 360 }} transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
+            className="w-10 h-10 rounded-full border-2 border-t-transparent"
+            style={{ borderColor: `${accentColor}20`, borderTopColor: accentColor }} />
+          <p className="text-[9px] font-space text-slate-500 uppercase tracking-widest animate-pulse">Loading quests...</p>
         </div>
-      ) : tasks.length > 0 ? (
-        <div className="space-y-3">
+      ) : filteredTasks.length > 0 ? (
+        <div className={viewMode === 'board' ? 'grid grid-cols-1 md:grid-cols-2 gap-3' : 'space-y-3'}>
           <AnimatePresence>
-            {tasks.map((task, index) => {
+            {filteredTasks.map((task, index) => {
               const isCompleted = task.status === 'completed';
-              const priorityColors = {
-                high: 'bg-red-500/10 border-red-500/20 text-red-400',
-                medium: 'bg-orange-500/10 border-orange-500/20 text-orange-400',
-                low: 'bg-slate-500/10 border-slate-500/20 text-slate-400'
-              };
+              const pc = priorityConfig[task.priority] || priorityConfig.medium;
 
               return (
                 <motion.div
                   key={task._id}
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ delay: index * 0.05 }}
+                  exit={{ opacity: 0, scale: 0.92 }}
+                  transition={{ delay: index * 0.04 }}
                 >
-                  <GlassCard
-                    className={`flex items-start justify-between p-4 py-3 transition-opacity ${
-                      isCompleted ? 'opacity-50' : ''
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
+                  <GlassCard className={`relative group transition-all ${isCompleted ? 'opacity-55' : 'hover:scale-[1.01]'}`}>
+                    {/* Priority accent strip */}
+                    <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-3xl"
+                      style={{ backgroundColor: pc.color, opacity: isCompleted ? 0.3 : 0.7 }} />
+
+                    <div className="flex items-start gap-3 pl-2">
                       <button
                         onClick={() => handleToggleTaskStatus(task)}
-                        className="mt-1 text-purple-400 hover:text-purple-300 focus:outline-none shrink-0 cursor-pointer"
-                        style={{ color: accentColor }}
+                        className="mt-0.5 shrink-0 cursor-pointer transition-all hover:scale-110"
+                        style={{ color: isCompleted ? '#22d3ee' : accentColor }}
                       >
                         {isCompleted ? <CheckCircle2 size={18} /> : <Circle size={18} />}
                       </button>
 
-                      <div>
-                        <h3 className={`font-sora text-xs font-semibold text-slate-100 ${
-                          isCompleted ? 'line-through text-slate-500' : ''
-                        }`}>
+                      <div className="flex-1 min-w-0">
+                        <h3 className={`font-sora text-xs font-bold ${isCompleted ? 'line-through text-slate-500' : 'text-slate-100'}`}>
                           {task.title}
                         </h3>
-                        
-                        <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
-                          <span 
-                            className="text-[9px] font-space px-2 py-0.5 rounded-full bg-slate-950/40 border"
-                            style={{ borderColor: `${accentColor}25`, color: accentColor }}
-                          >
+
+                        <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                          <span className="text-[8px] font-space px-2 py-0.5 rounded-full border"
+                            style={{ borderColor: `${accentColor}25`, color: accentColor, backgroundColor: `${accentColor}10` }}>
                             {task.subject}
                           </span>
-                          <span className="text-[9px] font-space px-2 py-0.5 rounded-full bg-slate-500/10 border border-white/5 text-slate-300">
-                            ⏱️ {task.estimatedMinutes} mins
+                          <span className={`text-[8px] font-space px-2 py-0.5 rounded-full border ${pc.bg} ${pc.border}`}
+                            style={{ color: pc.color }}>
+                            {pc.label}
                           </span>
-                          <span className={`text-[9px] font-space px-2 py-0.5 rounded-full border ${
-                            priorityColors[task.priority] || priorityColors.medium
-                          }`}>
-                            {task.priority}
+                          <span className="text-[8px] font-space text-slate-500 flex items-center gap-0.5">
+                            <Clock size={9} /> {task.estimatedMinutes}m
                           </span>
-                          <span className="text-[9px] font-space text-slate-500">
-                            📅 {new Date(task.deadline).toLocaleDateString()}
+                          <span className="text-[8px] font-space text-slate-500">
+                            📅 {new Date(task.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                           </span>
                         </div>
-                      </div>
-                    </div>
 
-                    <button
-                      onClick={() => handleDeleteTask(task._id)}
-                      className="text-slate-600 hover:text-red-400 p-1 rounded focus:outline-none transition-colors shrink-0 cursor-pointer"
-                    >
-                      <Trash2 size={15} />
-                    </button>
+                        {/* Difficulty bar */}
+                        <div className="flex items-center gap-1.5 mt-2">
+                          <span className="text-[7px] font-space text-slate-600 uppercase">Difficulty</span>
+                          <div className="flex gap-0.5">
+                            {['easy', 'medium', 'hard'].map((d, i) => (
+                              <span key={d} className="w-4 h-1 rounded-full"
+                                style={{
+                                  backgroundColor: ['easy', 'medium', 'hard'].indexOf(task.difficulty) >= i
+                                    ? pc.color : 'rgba(255,255,255,0.1)'
+                                }} />
+                            ))}
+                          </div>
+                          <span className="text-[7px] font-space text-slate-600">{task.difficulty}</span>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => handleDeleteTask(task._id)}
+                        className="text-slate-700 hover:text-red-400 p-1 rounded transition-colors shrink-0 cursor-pointer opacity-0 group-hover:opacity-100"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
                   </GlassCard>
                 </motion.div>
               );
@@ -396,8 +469,16 @@ const SmartPlanner = () => {
           </AnimatePresence>
         </div>
       ) : (
-        <div className="text-center py-16 text-slate-500 text-xs">
-          {t('no_tasks_planner')}
+        <div className="text-center py-16">
+          <span className="text-5xl block mb-4">📋</span>
+          <p className="text-slate-400 text-sm font-sora font-semibold mb-1">
+            {filterStatus === 'completed' ? 'No completed tasks yet!' : 'No quests added yet!'}
+          </p>
+          <p className="text-[10px] font-space text-slate-600 mb-4">Add tasks to start your journey</p>
+          <button onClick={() => setShowAddForm(true)}
+            className="px-5 py-2.5 rounded-2xl text-xs font-sora font-bold text-white cursor-pointer btn-theme-gradient">
+            + Add First Quest
+          </button>
         </div>
       )}
     </motion.div>

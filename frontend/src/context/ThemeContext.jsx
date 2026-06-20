@@ -3,11 +3,41 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const ThemeContext = createContext(null);
 
 export const THEMES = [
-  { id: 'galaxy', name: 'Cosmic Galaxy 🌌', accent: '#a855f7' },
-  { id: 'zen', name: 'Minimal White Zen 🤍', accent: '#B58263' },
-  { id: 'sakura', name: 'Sakura Garden 🌸', accent: '#f472b6' },
-  { id: 'ocean', name: 'Ocean World 🌊', accent: '#06b6d4' },
-  { id: 'midnight', name: 'Midnight Universe 🌙', accent: '#94a3b8' },
+  {
+    id: 'galaxy',
+    name: 'Cosmic Galaxy',
+    emoji: '🌌',
+    accent: '#a855f7',
+    description: 'Deep space vibes — planets, nebulae & shooting stars',
+  },
+  {
+    id: 'zen',
+    name: 'Minimal Zen',
+    emoji: '🤍',
+    accent: '#B58263',
+    description: 'Apple + Pinterest + Japanese cafe — pure clarity',
+  },
+  {
+    id: 'sakura',
+    name: 'Sakura Garden',
+    emoji: '🌸',
+    accent: '#f472b6',
+    description: 'Dreamy pink petals & soft anime aesthetic',
+  },
+  {
+    id: 'ocean',
+    name: 'Ocean World',
+    emoji: '🌊',
+    accent: '#06b6d4',
+    description: 'Deep sea tranquility — bioluminescent & fluid',
+  },
+  {
+    id: 'midnight',
+    name: 'Midnight Universe',
+    emoji: '🌙',
+    accent: '#94a3b8',
+    description: 'Luxury monochrome — editorial dark minimalism',
+  },
 ];
 
 export const ThemeProvider = ({ children }) => {

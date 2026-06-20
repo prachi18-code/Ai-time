@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutGrid, ListTodo, Sparkles, Clock, TrendingUp, User } from 'lucide-react';
+import { LayoutGrid, ListTodo, Sparkles, Clock, TrendingUp, User, Compass } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -16,6 +16,7 @@ const FloatingDock = ({ activeTab, setActiveTab }) => {
     { id: 'coach', label: t('coach'), icon: Sparkles, highlight: true },
     { id: 'focus', label: t('focus'), icon: Clock },
     { id: 'analytics', label: t('stats'), icon: TrendingUp },
+    { id: 'journey', label: 'Journey', icon: Compass },
     { id: 'profile', label: t('profile'), icon: User },
   ];
 
@@ -27,7 +28,7 @@ const FloatingDock = ({ activeTab, setActiveTab }) => {
     'floating-dock flex justify-around items-center py-3 px-4 relative';
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-lg">
+    <div className="fixed bottom-22 md:bottom-6 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-lg">
       <div className={containerClass}>
         {tabs.map((tab) => {
           const Icon = tab.icon;

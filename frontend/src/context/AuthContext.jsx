@@ -3,6 +3,15 @@ import { api } from '../services/api';
 
 const AuthContext = createContext(null);
 
+const DEMO_USER = {
+  _id: 'demo',
+  name: 'Aether User',
+  email: 'demo@aether.ai',
+  preferredStudyHours: 4,
+  dailyAvailableTime: 6,
+  isDemo: true,
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('aether_token') || null);
@@ -12,13 +21,21 @@ export const AuthProvider = ({ children }) => {
   // Validate token on load
   useEffect(() => {
     const fetchUser = async () => {
+      // Check for demo mode first
+      const demoActive = localStorage.getItem('aether_demo') === 'true';
+      if (demoActive) {
+        setUser(DEMO_USER);
+        setLoading(false);
+        return;
+      }
+
       if (token) {
         try {
           const userData = await api.getMe(token);
           setUser(userData);
         } catch (err) {
-          console.error('Invalid token, logging out:', err.message);
-          // Token expired or invalid
+          console.error('Token validation failed:', err.message);
+          // If network error (backend down), don't log out — just clear token
           localStorage.removeItem('aether_token');
           setToken(null);
           setUser(null);
@@ -44,6 +61,7 @@ export const AuthProvider = ({ children }) => {
         preferredStudyHours: data.preferredStudyHours,
         dailyAvailableTime: data.dailyAvailableTime,
       });
+      sessionStorage.setItem('just_logged_in', 'true');
       setLoading(false);
       return true;
     } catch (err) {
@@ -67,6 +85,7 @@ export const AuthProvider = ({ children }) => {
         preferredStudyHours: data.preferredStudyHours,
         dailyAvailableTime: data.dailyAvailableTime,
       });
+      sessionStorage.setItem('just_logged_in', 'true');
       setLoading(false);
       return true;
     } catch (err) {
@@ -76,8 +95,19 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const demoLogin = () => {
+    localStorage.setItem('aether_demo', 'true');
+    sessionStorage.setItem('just_logged_in', 'true');
+    setUser(DEMO_USER);
+    setLoading(false);
+  };
+
   const logout = () => {
     localStorage.removeItem('aether_token');
+    localStorage.removeItem('aether_demo');
+    // NOTE: Do NOT remove onboarding data on logout — preserve it for re-login
+    sessionStorage.removeItem('just_logged_in');
+    sessionStorage.removeItem('aether_onboarding_step');
     setToken(null);
     setUser(null);
     setError(null);
@@ -107,6 +137,7 @@ export const AuthProvider = ({ children }) => {
         login,
         register,
         logout,
+        demoLogin,
         updatePreferences,
         setError,
       }}

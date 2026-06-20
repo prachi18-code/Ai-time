@@ -31,19 +31,19 @@ export const translations = {
     hinglish: "Full Name"
   },
   dashboard: {
-    en: "Dashboard",
-    hi: "डैशबोर्ड",
-    hinglish: "Dashboard"
+    en: "✨ Home",
+    hi: "✨ होम",
+    hinglish: "✨ Home"
   },
   planner: {
-    en: "Smart Planner",
-    hi: "स्मार्ट प्लानर",
-    hinglish: "Smart Planner"
+    en: "🗺️ Journey",
+    hi: "🗺️ जर्नी",
+    hinglish: "🗺️ Journey"
   },
   coach: {
-    en: "AI Coach",
-    hi: "एआई कोच",
-    hinglish: "AI Coach"
+    en: "🤖 Companion",
+    hi: "🤖 साथी",
+    hinglish: "🤖 Companion"
   },
   focus: {
     en: "Focus Mode",
@@ -51,14 +51,14 @@ export const translations = {
     hinglish: "Focus Mode"
   },
   stats: {
-    en: "Analytics",
-    hi: "विश्लेषण",
-    hinglish: "Stats & Analytics"
+    en: "📈 Insights",
+    hi: "📈 अंतर्दृष्टि",
+    hinglish: "📈 Insights"
   },
   profile: {
-    en: "Settings",
-    hi: "सेटिंग्स",
-    hinglish: "Profile Settings"
+    en: "🌟 Space",
+    hi: "🌟 स्पेस",
+    hinglish: "🌟 Space"
   },
 
   // Dashboard Page

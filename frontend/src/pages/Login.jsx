@@ -7,7 +7,7 @@ import { Sparkles, Mail, Lock, LogIn } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Login = ({ onSwitchToRegister, onLoginSuccess }) => {
-  const { login } = useAuth();
+  const { login, demoLogin } = useAuth();
   const { t } = useLanguage();
   const { theme, themes } = useTheme();
   
@@ -130,7 +130,27 @@ const Login = ({ onSwitchToRegister, onLoginSuccess }) => {
             </motion.button>
           </form>
 
-          <div className="mt-6 text-center text-xs text-slate-400 font-sans">
+          <div className="mt-4 relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-white/5"></div>
+            </div>
+            <div className="relative flex justify-center">
+              <span className="px-3 bg-transparent text-[10px] text-slate-500 font-space uppercase tracking-widest">or</span>
+            </div>
+          </div>
+
+          <motion.button
+            type="button"
+            onClick={() => { demoLogin(); onLoginSuccess(); }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full py-2.5 rounded-xl font-space font-bold text-xs uppercase tracking-widest transition-all cursor-pointer border flex items-center justify-center gap-2"
+            style={{ borderColor: `${accentColor}30`, color: accentColor, background: `${accentColor}08` }}
+          >
+            ✨ Try Demo — No Sign-up Needed
+          </motion.button>
+
+          <div className="mt-4 text-center text-xs text-slate-400 font-sans">
             Account nahi hai?{' '}
             <button
               onClick={onSwitchToRegister}
