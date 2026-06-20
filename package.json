@@ -1,0 +1,14 @@
+{
+  "name": "aether-ai-time-management-coach",
+  "version": "1.0.0",
+  "description": "AI Time Management Coach MVP - Fullstack",
+  "scripts": {
+    "dev": "concurrently \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
+    "install-all": "npm --prefix backend install && npm --prefix frontend install",
+    "backend": "npm --prefix backend run dev",
+    "frontend": "npm --prefix frontend run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.3"
+  }
+}
