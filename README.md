@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Aether AI | Cosmic Time Management Coach (MVP)
 
 A fullstack time management and productivity coach built for students, inspired by Stitch's premium "Aether AI" dark-mode glassmorphic styling, using Hinglish interface copy.
@@ -89,3 +90,7 @@ The backend runs at `http://localhost:5000`.
 - Pomodoro start control: *"START FLOW"*
 - Log out: *"Account Log Out Karo"*
 - Settings feedback: *"Preferences update ho gayi hain, Dost! 🌟"*
+=======
+# Ai-time
+it is a time management sysytem
+>>>>>>> 4ad3aa8ed8af90219395289a21e6d02e4ec701c8
